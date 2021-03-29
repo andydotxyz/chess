@@ -12,9 +12,7 @@ Just use the go tools to install on your system and run it.
 
 ## Screenshot
 
-<video width="476" height="476" controls>
-  <source src="img/chess.mp4" type="video/mp4">
-</video>
+![](/img/screenshot.png)
 
 ## Status
 

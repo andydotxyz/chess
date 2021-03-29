@@ -22,7 +22,8 @@ func main() {
 
 	over := canvas.NewImageFromResource(nil)
 	over.Hide()
-	w.SetContent(container.NewMax(grid, container.NewWithoutLayout(over)))
+	bg := canvas.NewRectangle(color.Gray{Y: 0x7A})
+	w.SetContent(container.NewMax(bg, grid, container.NewWithoutLayout(over)))
 	w.Resize(fyne.NewSize(480, 480))
 
 	go func() {
@@ -43,9 +44,9 @@ func createGrid(b *chess.Board) *fyne.Container {
 
 	for y := 7; y >= 0; y-- {
 		for x := 0; x < 8; x++ {
-			bg := canvas.NewRectangle(color.Gray{0xE0})
+			bg := canvas.NewRectangle(color.Gray{Y: 0xD0})
 			if x%2 == y%2 {
-				bg.FillColor = color.Gray{0x30}
+				bg.FillColor = color.Gray{Y: 0x40}
 			}
 
 			p := b.Piece(chess.Square(x + y*8))
