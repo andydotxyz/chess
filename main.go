@@ -21,6 +21,7 @@ func main() {
 	grid := createGrid(game.Position().Board())
 
 	over := canvas.NewImageFromResource(nil)
+	over.FillMode = canvas.ImageFillContain
 	over.Hide()
 	bg := canvas.NewRectangle(color.Gray{Y: 0x7A})
 	w.SetContent(container.NewMax(bg, grid, container.NewWithoutLayout(over)))
