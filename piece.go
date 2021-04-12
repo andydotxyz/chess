@@ -33,22 +33,25 @@ func newPiece(g *chess.Game, sq chess.Square) *piece {
 
 func (p *piece) Tapped(ev *fyne.PointEvent) {
 	if moveStart == chess.NoSquare {
-		moveStart = p.square
+		if m := isValidMove(p.square, chess.NoSquare, p.game); m != nil {
+			moveStart = p.square
+		} else {
+			message := fmt.Sprintf("Cannot move piece %d",
+				p.game.Position().Board().Piece(p.square))
+			dialog.ShowInformation("Invalid move", message, win)
+		}
 		return
 	}
 
-	valid := p.game.ValidMoves()
-	for _, m := range valid {
-		if m.S1() == moveStart && m.S2() == p.square {
-			moveStart = chess.NoSquare
-			move(m, p.game, grid, over)
+	if m := isValidMove(moveStart, p.square, p.game); m != nil {
+		moveStart = chess.NoSquare
+		move(m, p.game, grid, over)
 
-			go func() {
-				time.Sleep(time.Second)
-				randomResponse(p.game)
-			}()
-			return
-		}
+		go func() {
+			time.Sleep(time.Second)
+			randomResponse(p.game)
+		}()
+		return
 	}
 
 	message := fmt.Sprintf("Cannot move piece %d to square %v",
@@ -58,7 +61,23 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	moveStart = chess.NoSquare
 }
 
+func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
+	valid := g.ValidMoves()
+	for _, m := range valid {
+		if m.S1() == s1 && (s2 == chess.NoSquare || m.S2() == s2) {
+			return m
+		}
+	}
+
+	return nil
+}
+
 func randomResponse(game *chess.Game) {
+	if game.Outcome() != chess.NoOutcome {
+		dialog.ShowInformation("Game ended",
+			"Game outcome "+game.Outcome().String()+" because "+game.Method().String(), win)
+		return
+	}
 	valid := game.ValidMoves()
 	m := valid[rand.Intn(len(valid))]
 
