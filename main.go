@@ -47,7 +47,7 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 
 	over.Show()
 	img.Resource = nil
-	cell.Refresh() // the piece may have removed elements?
+	img.Refresh()
 
 	off = squareToOffset(m.S2())
 	cell = grid.Objects[off].(*fyne.Container)
