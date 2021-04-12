@@ -40,7 +40,7 @@ func (b *boardLayout) MinSize(_ []fyne.CanvasObject) fyne.Size {
 	return fyne.NewSize(edge, edge)
 }
 
-func createGrid(b *chess.Board) *fyne.Container {
+func createGrid(g *chess.Game) *fyne.Container {
 	var cells []fyne.CanvasObject
 
 	for y := 7; y >= 0; y-- {
@@ -52,10 +52,8 @@ func createGrid(b *chess.Board) *fyne.Container {
 				effect.Resource = resourceOverlay2Png
 			}
 
-			p := b.Piece(chess.Square(x + y*8))
-			img := canvas.NewImageFromResource(resourceForPiece(p))
-			img.FillMode = canvas.ImageFillContain
-			cells = append(cells, container.NewMax(bg, effect, img))
+			p := newPiece(g, chess.Square(x+y*8))
+			cells = append(cells, container.NewMax(bg, effect, p))
 		}
 	}
 
@@ -67,7 +65,7 @@ func refreshGrid(grid *fyne.Container, b *chess.Board) {
 	for _, cell := range grid.Objects {
 		p := b.Piece(chess.Square(x + y*8))
 
-		img := cell.(*fyne.Container).Objects[2].(*canvas.Image)
+		img := cell.(*fyne.Container).Objects[2].(*piece)
 		img.Resource = resourceForPiece(p)
 		img.Refresh()
 

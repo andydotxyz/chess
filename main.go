@@ -12,36 +12,33 @@ import (
 	"github.com/notnil/chess"
 )
 
+var (
+	grid *fyne.Container
+	over *canvas.Image
+	win  fyne.Window
+)
+
 func main() {
 	a := app.New()
-	w := a.NewWindow("Chess")
+	win = a.NewWindow("Chess")
 
 	game := chess.NewGame()
-	grid := createGrid(game.Position().Board())
+	grid = createGrid(game)
 
-	over := canvas.NewImageFromResource(nil)
+	over = canvas.NewImageFromResource(nil)
 	over.FillMode = canvas.ImageFillContain
 	over.Hide()
-	w.SetContent(container.NewMax(grid, container.NewWithoutLayout(over)))
-	w.Resize(fyne.NewSize(480, 480))
+	win.SetContent(container.NewMax(grid, container.NewWithoutLayout(over)))
+	win.Resize(fyne.NewSize(480, 480))
 
-	go func() {
-		rand.Seed(time.Now().Unix())
-		for game.Outcome() == chess.NoOutcome {
-			time.Sleep(time.Millisecond * 500)
-			valid := game.ValidMoves()
-			m := valid[rand.Intn(len(valid))]
-
-			move(m, game, grid, over)
-		}
-	}()
-	w.ShowAndRun()
+	rand.Seed(time.Now().Unix()) // random seed for random responses
+	win.ShowAndRun()
 }
 
 func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Image) {
 	off := squareToOffset(m.S1())
 	cell := grid.Objects[off].(*fyne.Container)
-	img := cell.Objects[2].(*canvas.Image)
+	img := cell.Objects[2].(*piece)
 	pos1 := cell.Position()
 
 	over.Resource = img.Resource
@@ -50,7 +47,7 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 
 	over.Show()
 	img.Resource = nil
-	img.Refresh()
+	cell.Refresh() // the piece may have removed elements?
 
 	off = squareToOffset(m.S2())
 	cell = grid.Objects[off].(*fyne.Container)
