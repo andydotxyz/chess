@@ -47,6 +47,7 @@ func createGrid(g *chess.Game) *fyne.Container {
 		for x := 0; x < 8; x++ {
 			bg := canvas.NewRectangle(color.NRGBA{0xF4, 0xE2, 0xB6, 0xFF})
 			effect := canvas.NewImageFromResource(resourceOverlay1Png)
+			effect.ScaleMode = canvas.ImageScaleFastest
 			if x%2 == y%2 {
 				bg.FillColor = color.RGBA{0x73, 0x50, 0x32, 0xFF}
 				effect.Resource = resourceOverlay2Png

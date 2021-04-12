@@ -44,6 +44,7 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 	over.Resource = img.Resource
 	over.Move(pos1)
 	over.Resize(img.Size())
+	over.Refresh() // clear our old resource before showing
 
 	over.Show()
 	img.Resource = nil
