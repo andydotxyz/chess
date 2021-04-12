@@ -32,12 +32,13 @@ To install alongside the other applications on your system use the `fyne` tool.
 
 - [x] Renders board
 - [x] Animate moves
+- [x] Polish board and colours etc
+- [x] Handle user input
 
 (currently it just plays random moves)
 
 TODO
 
-- [ ] Polish UI and colours etc
-- [ ] Handle user input
-- [ ] Take turns against a computer
+- [ ] Drag and drop for moves
+- [ ] Take turns against a (non-random) computer
 - [ ] Save state and restore on app launch
