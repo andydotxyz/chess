@@ -2,6 +2,9 @@ package main
 
 import (
 	"image/color"
+	"log"
+	"math/rand"
+	"os/exec"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -40,11 +43,20 @@ func main() {
 	win.Resize(fyne.NewSize(480, 480))
 
 	eng = loadOpponent()
-	defer eng.Close()
+	if eng != nil {
+		defer eng.Close()
+	} else {
+		log.Println("Cound not find stockfish executable, using random player")
+		rand.Seed(time.Now().Unix()) // random seed for random responses
+	}
 	win.ShowAndRun()
 }
 
 func loadOpponent() *uci.Engine {
+	if _, err := exec.LookPath("stockfish"); err != nil {
+		return nil
+	}
+
 	e, err := uci.New("stockfish") // you must have stockfish installed and on $PATH
 	if err != nil {
 		panic(err)

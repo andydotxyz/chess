@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"math/rand"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -162,13 +163,18 @@ func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 }
 
 func playResponse(game *chess.Game) {
-	cmdPos := uci.CmdPosition{Position: game.Position()}
-	cmdGo := uci.CmdGo{MoveTime: time.Millisecond}
-	if err := eng.Run(cmdPos, cmdGo); err != nil {
-		panic(err)
-	}
+	var m *chess.Move
+	if eng != nil {
+		cmdPos := uci.CmdPosition{Position: game.Position()}
+		cmdGo := uci.CmdGo{MoveTime: time.Millisecond}
+		if err := eng.Run(cmdPos, cmdGo); err != nil {
+			panic(err)
+		}
 
-	m := eng.SearchResults().BestMove
+		m = eng.SearchResults().BestMove
+	} else {
+		m = randomResponse(game)
+	}
 	if m == nil {
 		return // somehow end of game and we didn't notice?
 	}
@@ -178,4 +184,13 @@ func playResponse(game *chess.Game) {
 
 	over.Move(cell.Position())
 	move(m, game, grid, over)
+}
+
+func randomResponse(game *chess.Game) *chess.Move {
+	valid := game.ValidMoves()
+	if len(valid) == 0 {
+		return nil
+	}
+
+	return valid[rand.Intn(len(valid))]
 }
