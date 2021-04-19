@@ -73,11 +73,6 @@ func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 }
 
 func randomResponse(game *chess.Game) {
-	if game.Outcome() != chess.NoOutcome {
-		dialog.ShowInformation("Game ended",
-			"Game outcome "+game.Outcome().String()+" because "+game.Method().String(), win)
-		return
-	}
 	valid := game.ValidMoves()
 	m := valid[rand.Intn(len(valid))]
 
