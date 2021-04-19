@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -10,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/notnil/chess"
+	"github.com/notnil/chess/uci"
 )
 
 var moveStart chess.Square = chess.NoSquare
@@ -48,8 +48,8 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 		move(m, p.game, grid, over)
 
 		go func() {
-			time.Sleep(time.Second)
-			randomResponse(p.game)
+			time.Sleep(time.Second / 2)
+			playResponse(p.game)
 		}()
 		return
 	}
@@ -72,9 +72,13 @@ func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 	return nil
 }
 
-func randomResponse(game *chess.Game) {
-	valid := game.ValidMoves()
-	m := valid[rand.Intn(len(valid))]
+func playResponse(game *chess.Game) {
+	cmdPos := uci.CmdPosition{Position: game.Position()}
+	cmdGo := uci.CmdGo{MoveTime: time.Millisecond}
+	if err := eng.Run(cmdPos, cmdGo); err != nil {
+		panic(err)
+	}
 
+	m := eng.SearchResults().BestMove
 	move(m, game, grid, over)
 }
