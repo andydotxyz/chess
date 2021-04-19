@@ -74,6 +74,9 @@ func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 
 func randomResponse(game *chess.Game) {
 	valid := game.ValidMoves()
+	if len(valid) == 0 {
+		return // game ended, better control logic would avoid this
+	}
 	m := valid[rand.Intn(len(valid))]
 
 	move(m, game, grid, over)
