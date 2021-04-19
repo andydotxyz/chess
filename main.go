@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"math/rand"
 	"time"
 
@@ -14,9 +15,10 @@ import (
 )
 
 var (
-	grid *fyne.Container
-	over *canvas.Image
-	win  fyne.Window
+	grid  *fyne.Container
+	over  *canvas.Image
+	start *canvas.Rectangle
+	win   fyne.Window
 )
 
 func main() {
@@ -29,7 +31,11 @@ func main() {
 	over = canvas.NewImageFromResource(nil)
 	over.FillMode = canvas.ImageFillContain
 	over.Hide()
-	win.SetContent(container.NewMax(grid, container.NewWithoutLayout(over)))
+
+	start = canvas.NewRectangle(color.Transparent)
+	start.StrokeWidth = 4
+
+	win.SetContent(container.NewMax(grid, container.NewWithoutLayout(start, over)))
 	win.Resize(fyne.NewSize(480, 480))
 
 	rand.Seed(time.Now().Unix()) // random seed for random responses
