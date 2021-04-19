@@ -40,6 +40,10 @@ func newPiece(g *chess.Game, sq chess.Square) *piece {
 }
 
 func (p *piece) Dragged(ev *fyne.DragEvent) {
+	if moveStart != chess.NoSquare && p.square != moveStart {
+		return // ignore drags if we are tapping
+	}
+
 	moveStart = p.square
 	off := squareToOffset(p.square)
 	cell := grid.Objects[off].(*fyne.Container)
@@ -61,6 +65,15 @@ func (p *piece) Dragged(ev *fyne.DragEvent) {
 }
 
 func (p *piece) DragEnd() {
+	if moveStart != chess.NoSquare && p.square != moveStart {
+		return // ignore drags if we are tapping
+	}
+
+	if start.Visible() {
+		start.Hide()
+		start.Refresh()
+	}
+
 	pos := over.Position().Add(fyne.NewPos(over.Size().Width/2, over.Size().Height/2))
 	sq := positionToSquare(pos)
 
