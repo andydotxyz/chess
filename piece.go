@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/notnil/chess"
@@ -35,6 +36,56 @@ func newPiece(g *chess.Game, sq chess.Square) *piece {
 
 	ret.Resource = resourceForPiece(p)
 	return ret
+}
+
+func (p *piece) Dragged(ev *fyne.DragEvent) {
+	moveStart = p.square
+	off := squareToOffset(p.square)
+	cell := grid.Objects[off].(*fyne.Container)
+	img := cell.Objects[2].(*piece)
+
+	pos := cell.Position().Add(ev.Position)
+	over.Move(pos.Subtract(fyne.NewPos(img.Size().Width/2, img.Size().Height/2)))
+	over.Resize(img.Size())
+
+	if img.Resource != nil {
+		over.Resource = img.Resource
+		over.Show()
+
+		img.Resource = nil
+		img.Refresh()
+	}
+
+	over.Refresh()
+}
+
+func (p *piece) DragEnd() {
+	pos := over.Position().Add(fyne.NewPos(over.Size().Width/2, over.Size().Height/2))
+	sq := positionToSquare(pos)
+
+	if m := isValidMove(moveStart, sq, p.game); m != nil {
+		move(m, p.game, grid, over)
+
+		go func() {
+			time.Sleep(time.Second)
+			randomResponse(p.game)
+		}()
+	} else {
+		off := squareToOffset(moveStart)
+		cell := grid.Objects[off].(*fyne.Container)
+		pos2 := cell.Position()
+
+		a := canvas.NewPositionAnimation(over.Position(), pos2, time.Millisecond*500, func(p fyne.Position) {
+			over.Move(p)
+			over.Refresh()
+		})
+		a.Start()
+		time.Sleep(time.Millisecond * 550)
+
+		refreshGrid(grid, p.game.Position().Board())
+		over.Hide()
+	}
+	moveStart = chess.NoSquare
 }
 
 func (p *piece) Tapped(ev *fyne.PointEvent) {
@@ -68,8 +119,12 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	start.Hide()
 	start.Refresh()
 
+	off := squareToOffset(moveStart)
+	cell := grid.Objects[off].(*fyne.Container)
+
 	if m := isValidMove(moveStart, p.square, p.game); m != nil {
 		moveStart = chess.NoSquare
+		over.Move(cell.Position())
 		move(m, p.game, grid, over)
 
 		go func() {
@@ -80,8 +135,6 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	}
 
 	moveStart = chess.NoSquare
-	off := squareToOffset(p.square)
-	cell := grid.Objects[off].(*fyne.Container)
 
 	start.FillColor = notOKBGColor
 	start.StrokeColor = notOKColor
@@ -115,5 +168,9 @@ func randomResponse(game *chess.Game) {
 	}
 	m := valid[rand.Intn(len(valid))]
 
+	off := squareToOffset(m.S1())
+	cell := grid.Objects[off].(*fyne.Container)
+
+	over.Move(cell.Position())
 	move(m, game, grid, over)
 }

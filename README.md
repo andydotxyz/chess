@@ -34,11 +34,11 @@ To install alongside the other applications on your system use the `fyne` tool.
 - [x] Animate moves
 - [x] Polish board and colours etc
 - [x] Handle user input
+- [x] Drag and drop for moves
 
 (currently it just plays random moves)
 
 TODO
 
-- [ ] Drag and drop for moves
 - [ ] Take turns against a (non-random) computer
 - [ ] Save state and restore on app launch

@@ -46,10 +46,8 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 	off := squareToOffset(m.S1())
 	cell := grid.Objects[off].(*fyne.Container)
 	img := cell.Objects[2].(*piece)
-	pos1 := cell.Position()
 
-	over.Resource = img.Resource
-	over.Move(pos1)
+	over.Resource = resourceForPiece(game.Position().Board().Piece(m.S1()))
 	over.Resize(img.Size())
 	over.Refresh() // clear our old resource before showing
 
@@ -61,7 +59,7 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 	cell = grid.Objects[off].(*fyne.Container)
 	pos2 := cell.Position()
 
-	a := canvas.NewPositionAnimation(pos1, pos2, time.Millisecond*500, func(p fyne.Position) {
+	a := canvas.NewPositionAnimation(over.Position(), pos2, time.Millisecond*500, func(p fyne.Position) {
 		over.Move(p)
 		over.Refresh()
 	})
@@ -83,6 +81,18 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 		dialog.ShowInformation("Game ended",
 			"Game "+result+" because "+game.Method().String(), win)
 	}
+}
+
+func positionToSquare(pos fyne.Position) chess.Square {
+	var offX, offY = -1, -1
+	for x := float32(0); x <= pos.X; x += grid.Size().Width / 8 {
+		offX++
+	}
+	for y := float32(0); y <= pos.Y; y += grid.Size().Height / 8 {
+		offY++
+	}
+
+	return chess.Square((7-offY)*8 + offX)
 }
 
 func squareToOffset(sq chess.Square) int {
