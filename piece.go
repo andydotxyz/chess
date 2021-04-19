@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"math/rand"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -10,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/notnil/chess"
+	"github.com/notnil/chess/uci"
 )
 
 var (
@@ -68,7 +68,7 @@ func (p *piece) DragEnd() {
 
 		go func() {
 			time.Sleep(time.Second)
-			randomResponse(p.game)
+			playResponse(p.game)
 		}()
 	} else {
 		off := squareToOffset(moveStart)
@@ -128,8 +128,8 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 		move(m, p.game, grid, over)
 
 		go func() {
-			time.Sleep(time.Second)
-			randomResponse(p.game)
+			time.Sleep(time.Second / 2)
+			playResponse(p.game)
 		}()
 		return
 	}
@@ -161,12 +161,17 @@ func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 	return nil
 }
 
-func randomResponse(game *chess.Game) {
-	valid := game.ValidMoves()
-	if len(valid) == 0 {
-		return // game ended, better control logic would avoid this
+func playResponse(game *chess.Game) {
+	cmdPos := uci.CmdPosition{Position: game.Position()}
+	cmdGo := uci.CmdGo{MoveTime: time.Millisecond}
+	if err := eng.Run(cmdPos, cmdGo); err != nil {
+		panic(err)
 	}
-	m := valid[rand.Intn(len(valid))]
+
+	m := eng.SearchResults().BestMove
+	if m == nil {
+		return // somehow end of game and we didn't notice?
+	}
 
 	off := squareToOffset(m.S1())
 	cell := grid.Objects[off].(*fyne.Container)

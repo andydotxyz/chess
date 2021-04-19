@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"math/rand"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -10,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"github.com/notnil/chess/uci"
 
 	"github.com/notnil/chess"
 )
@@ -19,6 +19,7 @@ var (
 	over  *canvas.Image
 	start *canvas.Rectangle
 	win   fyne.Window
+	eng   *uci.Engine
 )
 
 func main() {
@@ -38,8 +39,21 @@ func main() {
 	win.SetContent(container.NewMax(grid, container.NewWithoutLayout(start, over)))
 	win.Resize(fyne.NewSize(480, 480))
 
-	rand.Seed(time.Now().Unix()) // random seed for random responses
+	eng = loadOpponent()
+	defer eng.Close()
 	win.ShowAndRun()
+}
+
+func loadOpponent() *uci.Engine {
+	e, err := uci.New("stockfish") // you must have stockfish installed and on $PATH
+	if err != nil {
+		panic(err)
+	}
+
+	if err := e.Run(uci.CmdUCI, uci.CmdIsReady, uci.CmdUCINewGame); err != nil {
+		panic(err)
+	}
+	return e
 }
 
 func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Image) {
