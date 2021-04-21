@@ -156,14 +156,4 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	}()
 }
 
-func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
-	valid := g.ValidMoves()
-	for _, m := range valid {
-		if m.S1() == s1 && (s2 == chess.NoSquare || m.S2() == s2) {
-			return m
-		}
-	}
-
-	return nil
-}
 

@@ -10,6 +10,17 @@ import (
 
 const preferenceKeyCurrent = "current"
 
+func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
+	valid := g.ValidMoves()
+	for _, m := range valid {
+		if m.S1() == s1 && (s2 == chess.NoSquare || m.S2() == s2) {
+			return m
+		}
+	}
+
+	return nil
+}
+
 func loadGameFromPreference(game *chess.Game, p fyne.Preferences) {
 	cur := p.String(preferenceKeyCurrent)
 	if cur == "" {
