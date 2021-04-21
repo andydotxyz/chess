@@ -4,7 +4,6 @@ import (
 	"image/color"
 	"log"
 	"math/rand"
-	"os/exec"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -16,8 +15,6 @@ import (
 
 	"github.com/notnil/chess"
 )
-
-const preferenceKeyCurrent = "current"
 
 var (
 	grid  *fyne.Container
@@ -57,36 +54,6 @@ func main() {
 		rand.Seed(time.Now().Unix()) // random seed for random responses
 	}
 	win.ShowAndRun()
-}
-
-func loadGameFromPreference(game *chess.Game, p fyne.Preferences) {
-		cur := p.String(preferenceKeyCurrent)
-		if cur == "" {
-			return
-		}
-
-		load, err := chess.FEN(cur)
-		if err != nil {
-			log.Println("Failed to load game", err)
-			return
-		}
-		load(game)
-}
-
-func loadOpponent() *uci.Engine {
-	if _, err := exec.LookPath("stockfish"); err != nil {
-		return nil
-	}
-
-	e, err := uci.New("stockfish") // you must have stockfish installed and on $PATH
-	if err != nil {
-		panic(err)
-	}
-
-	if err := e.Run(uci.CmdUCI, uci.CmdIsReady, uci.CmdUCINewGame); err != nil {
-		panic(err)
-	}
-	return e
 }
 
 func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Image) {
@@ -132,23 +99,4 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 		dialog.ShowInformation("Game ended",
 			"Game "+result+" because "+game.Method().String(), win)
 	}
-}
-
-func positionToSquare(pos fyne.Position) chess.Square {
-	var offX, offY = -1, -1
-	for x := float32(0); x <= pos.X; x += grid.Size().Width / 8 {
-		offX++
-	}
-	for y := float32(0); y <= pos.Y; y += grid.Size().Height / 8 {
-		offY++
-	}
-
-	return chess.Square((7-offY)*8 + offX)
-}
-
-func squareToOffset(sq chess.Square) int {
-	x := sq % 8
-	y := 7 - ((sq - x) / 8)
-
-	return int(x + y*8)
 }
