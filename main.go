@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"log"
 	"math/rand"
 	"time"
@@ -9,80 +8,63 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"github.com/notnil/chess/uci"
 
 	"github.com/notnil/chess"
 )
 
-var (
-	grid  *fyne.Container
-	over  *canvas.Image
-	start *canvas.Rectangle
-	win   fyne.Window
-	eng   *uci.Engine
-)
-
 func main() {
 	a := app.NewWithID("xyz.andy.chess")
-	win = a.NewWindow("Chess")
+	win := a.NewWindow("Chess")
 
 	game := chess.NewGame()
-	loadGameFromPreference(game, a.Preferences())
-	grid = createGrid(game)
-	a.Preferences().AddChangeListener(func() {
-		loadGameFromPreference(game, a.Preferences())
-		refreshGrid(grid, game.Position().Board())
-	})
-
-	over = canvas.NewImageFromResource(nil)
-	over.FillMode = canvas.ImageFillContain
-	over.Hide()
-
-	start = canvas.NewRectangle(color.Transparent)
-	start.StrokeWidth = 4
-
-	win.SetContent(container.NewMax(grid, container.NewWithoutLayout(start, over)))
-	win.Resize(fyne.NewSize(480, 480))
-
-	eng = loadOpponent()
-	if eng != nil {
-		defer eng.Close()
+	u := &ui{win: win, game: game, eng: loadOpponent()}
+	if u.eng != nil {
+		defer u.eng.Close()
 	} else {
 		log.Println("Cound not find stockfish executable, using random player")
 		rand.Seed(time.Now().Unix()) // random seed for random responses
 	}
+
+	loadGameFromPreference(game, a.Preferences())
+	a.Preferences().AddChangeListener(func() {
+		loadGameFromPreference(game, a.Preferences())
+		u.refreshGrid()
+	})
+
+	win.SetContent(u.makeUI())
+	win.Resize(fyne.NewSize(480, 480))
+
 	win.ShowAndRun()
 }
 
-func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Image) {
+func move(m *chess.Move, game *chess.Game, u *ui) {
 	off := squareToOffset(m.S1())
-	cell := grid.Objects[off].(*fyne.Container)
+	cell := u.grid.Objects[off].(*fyne.Container)
 	img := cell.Objects[2].(*piece)
 
-	over.Resource = resourceForPiece(game.Position().Board().Piece(m.S1()))
-	over.Resize(img.Size())
-	over.Refresh() // clear our old resource before showing
+	u.over.Resource = resourceForPiece(game.Position().Board().Piece(m.S1()))
+	u.over.Resize(img.Size())
+	u.over.Refresh() // clear our old resource before showing
 
-	over.Show()
+	u.over.Show()
 	img.Resource = nil
 	img.Refresh()
 
 	off = squareToOffset(m.S2())
-	cell = grid.Objects[off].(*fyne.Container)
+	cell = u.grid.Objects[off].(*fyne.Container)
 	pos2 := cell.Position()
 
-	a := canvas.NewPositionAnimation(over.Position(), pos2, time.Millisecond*500, func(p fyne.Position) {
-		over.Move(p)
-		over.Refresh()
+	a := canvas.NewPositionAnimation(u.over.Position(), pos2, time.Millisecond*500, func(p fyne.Position) {
+		u.over.Move(p)
+		u.over.Refresh()
 	})
 	a.Start()
 	time.Sleep(time.Millisecond * 550)
 
 	game.Move(m)
-	refreshGrid(grid, game.Position().Board())
-	over.Hide()
+	u.refreshGrid()
+	u.over.Hide()
 
 	fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
 
@@ -97,6 +79,6 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 
 		fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, "")
 		dialog.ShowInformation("Game ended",
-			"Game "+result+" because "+game.Method().String(), win)
+			"Game "+result+" because "+game.Method().String(), u.win)
 	}
 }
