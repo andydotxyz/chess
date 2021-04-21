@@ -36,7 +36,9 @@ To install alongside the other applications on your system use the `fyne` tool.
 - [x] Handle user input
 - [x] Drag and drop for moves
 - [X] Take turns against a computer player
+- [X] Save state and restore on app launch
 
 TODO
 
-- [ ] Save state and restore on app launch
+- [ ] Add game summary info (who to move etc)
+- [ ] Remove dependency on external algorithm

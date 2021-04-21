@@ -17,6 +17,8 @@ import (
 	"github.com/notnil/chess"
 )
 
+const preferenceKeyCurrent = "current"
+
 var (
 	grid  *fyne.Container
 	over  *canvas.Image
@@ -26,11 +28,16 @@ var (
 )
 
 func main() {
-	a := app.New()
+	a := app.NewWithID("xyz.andy.chess")
 	win = a.NewWindow("Chess")
 
 	game := chess.NewGame()
+	loadGameFromPreference(game, a.Preferences())
 	grid = createGrid(game)
+	a.Preferences().AddChangeListener(func() {
+		loadGameFromPreference(game, a.Preferences())
+		refreshGrid(grid, game.Position().Board())
+	})
 
 	over = canvas.NewImageFromResource(nil)
 	over.FillMode = canvas.ImageFillContain
@@ -50,6 +57,20 @@ func main() {
 		rand.Seed(time.Now().Unix()) // random seed for random responses
 	}
 	win.ShowAndRun()
+}
+
+func loadGameFromPreference(game *chess.Game, p fyne.Preferences) {
+		cur := p.String(preferenceKeyCurrent)
+		if cur == "" {
+			return
+		}
+
+		load, err := chess.FEN(cur)
+		if err != nil {
+			log.Println("Failed to load game", err)
+			return
+		}
+		load(game)
 }
 
 func loadOpponent() *uci.Engine {
@@ -96,6 +117,8 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 	refreshGrid(grid, game.Position().Board())
 	over.Hide()
 
+	fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
+
 	if game.Outcome() != chess.NoOutcome {
 		result := "draw"
 		switch game.Outcome().String() {
@@ -104,6 +127,8 @@ func move(m *chess.Move, game *chess.Game, grid *fyne.Container, over *canvas.Im
 		case "0-1":
 			result = "lost"
 		}
+
+		fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, "")
 		dialog.ShowInformation("Game ended",
 			"Game "+result+" because "+game.Method().String(), win)
 	}
