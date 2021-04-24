@@ -6,6 +6,9 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 	"github.com/notnil/chess"
 	"github.com/notnil/chess/uci"
 )
@@ -48,6 +51,25 @@ func (u *ui) createGrid() *fyne.Container {
 	return container.New(&boardLayout{}, cells...)
 }
 
+func (u *ui) makeHeader() fyne.CanvasObject {
+	whitePlays := widget.NewIcon(theme.NavigateBackIcon())
+	blackPlays := widget.NewIcon(nil)
+	status := widget.NewIcon(nil)
+
+	statusBG := canvas.NewRectangle(theme.BackgroundColor())
+	statusBG.SetMinSize(fyne.NewSize(theme.IconInlineSize()*2, theme.IconInlineSize()*2))
+
+	return container.NewHBox(layout.NewSpacer(),
+		container.NewGridWithColumns(5,
+			widget.NewIcon(resourceForPiece(chess.WhiteKing)),
+			whitePlays,
+			container.NewMax(statusBG, status),
+			blackPlays,
+			widget.NewIcon(resourceForPiece(chess.BlackKing)),
+		),
+		layout.NewSpacer())
+}
+
 func (u *ui) makeUI() fyne.CanvasObject {
 	u.grid = u.createGrid()
 
@@ -58,9 +80,9 @@ func (u *ui) makeUI() fyne.CanvasObject {
 	u.start = canvas.NewRectangle(color.Transparent)
 	u.start.StrokeWidth = 4
 
-	return container.NewMax(u.grid, container.NewWithoutLayout(u.start, u.over))
+	board := container.NewMax(u.grid, container.NewWithoutLayout(u.start, u.over))
+	return container.NewBorder(u.makeHeader(), nil, nil, nil, board)
 }
-
 
 func (u *ui) refreshGrid() {
 	y, x := 7, 0
