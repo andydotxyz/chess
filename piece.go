@@ -155,5 +155,3 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 		p.u.start.Refresh()
 	}()
 }
-
-
