@@ -47,8 +47,7 @@ func playResponse(u *ui) {
 	cell := u.grid.Objects[off].(*fyne.Container)
 
 	u.over.Move(cell.Position())
-	move(m, u.game, u)
-	_ = u.blackTurn.Set(false)
+	move(m, u.game, false, u)
 }
 
 func randomResponse(game *chess.Game) *chess.Move {

@@ -70,7 +70,7 @@ func (p *piece) DragEnd() {
 	sq := positionToSquare(pos, p.u.grid.Size())
 
 	if m := isValidMove(moveStart, sq, p.u.game); m != nil {
-		move(m, p.u.game, p.u)
+		move(m, p.u.game, true, p.u)
 
 		go func() {
 			time.Sleep(time.Second)
@@ -131,7 +131,7 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	if m := isValidMove(moveStart, p.square, p.u.game); m != nil {
 		moveStart = chess.NoSquare
 		p.u.over.Move(cell.Position())
-		move(m, p.u.game, p.u)
+		move(m, p.u.game, true, p.u)
 
 		go func() {
 			time.Sleep(time.Second / 2)

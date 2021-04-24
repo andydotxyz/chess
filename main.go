@@ -39,7 +39,7 @@ func main() {
 	win.ShowAndRun()
 }
 
-func move(m *chess.Move, game *chess.Game, u *ui) {
+func move(m *chess.Move, game *chess.Game, white bool, u *ui) {
 	off := squareToOffset(m.S1())
 	cell := u.grid.Objects[off].(*fyne.Container)
 	img := cell.Objects[2].(*piece)
@@ -67,7 +67,7 @@ func move(m *chess.Move, game *chess.Game, u *ui) {
 	u.refreshGrid()
 	u.over.Hide()
 
-	_ = u.blackTurn.Set(true)
+	_ = u.blackTurn.Set(white)
 	fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
 
 	_ = u.outcome.Set(string(game.Outcome()))
