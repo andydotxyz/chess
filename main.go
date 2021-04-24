@@ -18,7 +18,8 @@ func main() {
 	win := a.NewWindow("Chess")
 
 	game := chess.NewGame()
-	u := &ui{win: win, game: game, eng: loadOpponent()}
+	u := newUI(win, game)
+	u.eng = loadOpponent()
 	if u.eng != nil {
 		defer u.eng.Close()
 	} else {
@@ -66,8 +67,10 @@ func move(m *chess.Move, game *chess.Game, u *ui) {
 	u.refreshGrid()
 	u.over.Hide()
 
+	_ = u.blackTurn.Set(true)
 	fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
 
+	_ = u.outcome.Set(string(game.Outcome()))
 	if game.Outcome() != chess.NoOutcome {
 		result := "draw"
 		switch game.Outcome().String() {

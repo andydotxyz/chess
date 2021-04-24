@@ -26,7 +26,7 @@ To install alongside the other applications on your system use the `fyne` tool.
 
 ## Screenshot
 
-![](/img/screenshot.png)
+<img src = "/img/screenshot.png" style="max-width: 488px" />
 
 ## Status
 

@@ -48,6 +48,7 @@ func playResponse(u *ui) {
 
 	u.over.Move(cell.Position())
 	move(m, u.game, u)
+	_ = u.blackTurn.Set(false)
 }
 
 func randomResponse(game *chess.Game) *chess.Move {

@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -26,8 +27,20 @@ type ui struct {
 	start *canvas.Rectangle
 	win   fyne.Window
 
+	blackTurn binding.Bool
+	outcome   binding.String
+
 	game *chess.Game
 	eng  *uci.Engine
+}
+
+func newUI(win fyne.Window, game *chess.Game) *ui {
+	u := &ui{win: win, game: game}
+	u.blackTurn = binding.NewBool()
+	u.outcome = binding.NewString()
+	u.outcome.Set(string(chess.NoOutcome))
+
+	return u
 }
 
 func (u *ui) createGrid() *fyne.Container {
@@ -55,6 +68,32 @@ func (u *ui) makeHeader() fyne.CanvasObject {
 	whitePlays := widget.NewIcon(theme.NavigateBackIcon())
 	blackPlays := widget.NewIcon(nil)
 	status := widget.NewIcon(nil)
+
+	u.blackTurn.AddListener(binding.NewDataListener(func() {
+		if black, _ := u.blackTurn.Get(); black {
+			whitePlays.Resource = nil
+			blackPlays.Resource = theme.NavigateNextIcon()
+		} else {
+			whitePlays.Resource = theme.NavigateBackIcon()
+			blackPlays.Resource = nil
+		}
+		whitePlays.Refresh()
+		blackPlays.Refresh()
+	}))
+	u.outcome.AddListener(binding.NewDataListener(func() {
+		outcome, _ := u.outcome.Get()
+		switch outcome {
+		case string(chess.NoOutcome):
+			status.Resource = nil
+		default:
+			status.Resource = theme.WarningIcon()
+			blackPlays.Resource = nil
+			whitePlays.Resource = nil
+			blackPlays.Refresh()
+			whitePlays.Refresh()
+		}
+		status.Refresh()
+	}))
 
 	statusBG := canvas.NewRectangle(theme.BackgroundColor())
 	statusBG.SetMinSize(fyne.NewSize(theme.IconInlineSize()*2, theme.IconInlineSize()*2))
