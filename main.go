@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/theme"
 
 	"github.com/notnil/chess"
 )
@@ -34,7 +35,7 @@ func main() {
 	})
 
 	win.SetContent(u.makeUI())
-	win.Resize(fyne.NewSize(480, 480))
+	win.Resize(fyne.NewSize(480, 480+theme.IconInlineSize()*2+theme.Padding()))
 
 	win.ShowAndRun()
 }
