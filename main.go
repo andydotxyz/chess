@@ -37,6 +37,18 @@ func main() {
 	win.SetContent(u.makeUI())
 	win.Resize(fyne.NewSize(480, 480+theme.IconInlineSize()*2+theme.Padding()))
 
+	win.SetMainMenu(fyne.NewMainMenu(
+		fyne.NewMenu("File",
+			fyne.NewMenuItem("New Game", func() {
+				u.game = chess.NewGame()
+				u.refreshGrid()
+
+				_ = u.blackTurn.Set(false)
+				_ = u.outcome.Set(string(chess.NoOutcome))
+				a.Preferences().SetString(preferenceKeyCurrent, game.FEN())
+			})),
+	))
+
 	win.ShowAndRun()
 }
 
