@@ -1,5 +1,5 @@
 //go:generate fyne bundle -o bundled-board.go board
-//go:generate fyne bundle -o bundled-pices.go pieces
+//go:generate fyne bundle -o bundled-pieces.go pieces
 
 package main
 
