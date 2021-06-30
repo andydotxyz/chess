@@ -13,13 +13,8 @@ import (
 type boardLayout struct{}
 
 func (b *boardLayout) Layout(cells []fyne.CanvasObject, s fyne.Size) {
-	smallEdge := s.Width
-	if s.Height < s.Width {
-		smallEdge = s.Height
-	}
-
-	leftInset := (s.Width - smallEdge) / 2
-	cellEdge := smallEdge / 8
+	cellEdge := cellSize(s)
+	leftInset := (s.Width - cellEdge*8) / 2
 	cellSize := fyne.NewSize(cellEdge, cellEdge)
 	i := 0
 	for y := 0; y < 8; y++ {
@@ -36,6 +31,15 @@ func (b *boardLayout) Layout(cells []fyne.CanvasObject, s fyne.Size) {
 func (b *boardLayout) MinSize(_ []fyne.CanvasObject) fyne.Size {
 	edge := theme.IconInlineSize() * 8
 	return fyne.NewSize(edge, edge)
+}
+
+func cellSize(s fyne.Size) float32 {
+	smallEdge := s.Width
+	if s.Height < s.Width {
+		smallEdge = s.Height
+	}
+
+	return smallEdge / 8
 }
 
 func resourceForPiece(p chess.Piece) fyne.Resource {

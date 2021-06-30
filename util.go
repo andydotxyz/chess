@@ -37,10 +37,11 @@ func loadGameFromPreference(game *chess.Game, p fyne.Preferences) {
 
 func positionToSquare(pos fyne.Position, gridSize fyne.Size) chess.Square {
 	var offX, offY = -1, -1
-	for x := float32(0); x <= pos.X; x += gridSize.Width / 8 {
+	cellEdge := cellSize(gridSize)
+	for x := float32(0); x <= pos.X; x += cellEdge {
 		offX++
 	}
-	for y := float32(0); y <= pos.Y; y += gridSize.Height / 8 {
+	for y := float32(0); y <= pos.Y; y += cellEdge {
 		offY++
 	}
 
