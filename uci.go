@@ -44,7 +44,7 @@ func playResponse(u *ui) {
 	}
 
 	off := squareToOffset(m.S1())
-	cell := u.grid.Objects[off].(*fyne.Container)
+	cell := u.grid.objects[off].(*fyne.Container)
 
 	u.over.Move(cell.Position())
 	move(m, u.game, false, u)

@@ -54,7 +54,7 @@ func main() {
 
 func move(m *chess.Move, game *chess.Game, white bool, u *ui) {
 	off := squareToOffset(m.S1())
-	cell := u.grid.Objects[off].(*fyne.Container)
+	cell := u.grid.objects[off].(*fyne.Container)
 	img := cell.Objects[2].(*piece)
 
 	u.over.Resource = resourceForPiece(game.Position().Board().Piece(m.S1()))
@@ -66,7 +66,7 @@ func move(m *chess.Move, game *chess.Game, white bool, u *ui) {
 	img.Refresh()
 
 	off = squareToOffset(m.S2())
-	cell = u.grid.Objects[off].(*fyne.Container)
+	cell = u.grid.objects[off].(*fyne.Container)
 	pos2 := cell.Position()
 
 	a := canvas.NewPositionAnimation(u.over.Position(), pos2, time.Millisecond*500, func(p fyne.Position) {

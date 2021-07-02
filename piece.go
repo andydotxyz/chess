@@ -38,7 +38,7 @@ func (p *piece) Dragged(ev *fyne.DragEvent) {
 
 	moveStart = p.square
 	off := squareToOffset(p.square)
-	cell := p.u.grid.Objects[off].(*fyne.Container)
+	cell := p.u.grid.objects[off].(*fyne.Container)
 	img := cell.Objects[2].(*piece)
 
 	pos := cell.Position().Add(ev.Position)
@@ -78,7 +78,7 @@ func (p *piece) DragEnd() {
 		}()
 	} else {
 		off := squareToOffset(moveStart)
-		cell := p.u.grid.Objects[off].(*fyne.Container)
+		cell := p.u.grid.objects[off].(*fyne.Container)
 		pos2 := cell.Position()
 
 		a := canvas.NewPositionAnimation(p.u.over.Position(), pos2, time.Millisecond*500, func(pos fyne.Position) {
@@ -113,7 +113,7 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 		}
 
 		off := squareToOffset(p.square)
-		cell := p.u.grid.Objects[off].(*fyne.Container)
+		cell := p.u.grid.objects[off].(*fyne.Container)
 
 		p.u.start.Move(cell.Position())
 		p.u.start.Resize(cell.Size())
@@ -126,7 +126,7 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	p.u.start.Refresh()
 
 	off := squareToOffset(moveStart)
-	cell := p.u.grid.Objects[off].(*fyne.Container)
+	cell := p.u.grid.objects[off].(*fyne.Container)
 
 	if m := isValidMove(moveStart, p.square, p.u.game); m != nil {
 		moveStart = chess.NoSquare

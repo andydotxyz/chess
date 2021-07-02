@@ -22,7 +22,7 @@ var (
 )
 
 type ui struct {
-	grid  *fyne.Container
+	grid  *boardContainer
 	over  *canvas.Image
 	start *canvas.Rectangle
 	win   fyne.Window
@@ -43,7 +43,7 @@ func newUI(win fyne.Window, game *chess.Game) *ui {
 	return u
 }
 
-func (u *ui) createGrid() *fyne.Container {
+func (u *ui) createGrid() *boardContainer {
 	var cells []fyne.CanvasObject
 
 	for y := 7; y >= 0; y-- {
@@ -61,7 +61,11 @@ func (u *ui) createGrid() *fyne.Container {
 		}
 	}
 
-	return container.New(&boardLayout{}, cells...)
+	return newBoardContainer(cells, func() {
+		moveStart = chess.NoSquare
+		u.start.Hide()
+		u.start.Refresh()
+	})
 }
 
 func (u *ui) makeHeader() fyne.CanvasObject {
@@ -125,7 +129,7 @@ func (u *ui) makeUI() fyne.CanvasObject {
 
 func (u *ui) refreshGrid() {
 	y, x := 7, 0
-	for _, cell := range u.grid.Objects {
+	for _, cell := range u.grid.objects {
 		p := u.game.Position().Board().Piece(chess.Square(x + y*8))
 
 		img := cell.(*fyne.Container).Objects[2].(*piece)
