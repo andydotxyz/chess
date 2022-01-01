@@ -25,13 +25,22 @@ func newBoardContainer(cells []fyne.CanvasObject, tap func()) *boardContainer {
 }
 
 func (b *boardContainer) CreateRenderer() fyne.WidgetRenderer {
-	return b
+	return &boardRenderer{b: b, objects: b.objects}
 }
 
-func (b *boardContainer) Destroy() {
+func (b *boardContainer) Tapped(_ *fyne.PointEvent) {
+	b.tapped()
 }
 
-func (b *boardContainer) Layout(s fyne.Size) {
+type boardRenderer struct {
+	b       *boardContainer
+	objects []fyne.CanvasObject
+}
+
+func (b *boardRenderer) Destroy() {
+}
+
+func (b *boardRenderer) Layout(s fyne.Size) {
 	cellEdge := cellSize(s)
 	leftInset := (s.Width - cellEdge*8) / 2
 	cellSize := fyne.NewSize(cellEdge, cellEdge)
@@ -47,17 +56,16 @@ func (b *boardContainer) Layout(s fyne.Size) {
 	}
 }
 
-func (b *boardContainer) MinSize()fyne.Size {
+func (b *boardRenderer) MinSize()fyne.Size {
 	edge := theme.IconInlineSize() * 8
 	return fyne.NewSize(edge, edge)
 }
 
-func (b *boardContainer) Objects() []fyne.CanvasObject {
+func (b *boardRenderer) Objects() []fyne.CanvasObject {
 	return b.objects
 }
 
-func (b *boardContainer) Tapped(_ *fyne.PointEvent) {
-	b.tapped()
+func (b *boardRenderer) Refresh() {
 }
 
 func cellSize(s fyne.Size) float32 {
