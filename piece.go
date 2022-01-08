@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -37,8 +36,6 @@ func newPiece(u *ui, sq chess.Square, g *game) *piece {
 }
 
 func (p *piece) Dragged(ev *fyne.DragEvent) {
-	log.Println("dragged")
-
 	if moveStart != chess.NoSquare && p.square != moveStart {
 		return // ignore drags if we are tapping
 	}
@@ -64,7 +61,6 @@ func (p *piece) Dragged(ev *fyne.DragEvent) {
 }
 
 func (p *piece) DragEnd() {
-	log.Println("drag end")
 	if moveStart != chess.NoSquare && p.square != moveStart {
 		return // ignore drags if we are tapping
 	}
@@ -77,26 +73,13 @@ func (p *piece) DragEnd() {
 	pos := p.u.over.Position().Add(fyne.NewPos(p.u.over.Size().Width/2, p.u.over.Size().Height/2))
 	sq := positionToSquare(pos, p.u.grid.Size())
 
-	log.Println("before isvalidmove")
 	var color int
 	if p.g.cgame.Position().Turn() == chess.Black {
 		color = 1
 	}
 	m := isValidMove(moveStart, sq, p.g.cgame)
-	log.Print(m)
-	log.Print(p.g.chessplayers[color])
 	if m != nil {
-		//move(m, p.g.cgame, true, p.u)
-		log.Println("before sending move")
 		p.g.players[color].GetChannel() <- m
-		log.Println("after sending move")
-
-		/* go func() {
-			time.Sleep(time.Second)
-			//playResponse(p.u) TODO change this
-		}()
-
-		*/
 	} else {
 		off := squareToOffset(moveStart)
 		cell := p.u.grid.objects[off].(*fyne.Container)
@@ -117,7 +100,6 @@ func (p *piece) DragEnd() {
 }
 
 func (p *piece) Tapped(ev *fyne.PointEvent) {
-	log.Println("tapped")
 	if moveStart == p.square {
 		moveStart = chess.NoSquare
 		p.u.start.Hide()

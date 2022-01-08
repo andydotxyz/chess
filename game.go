@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2"
 	"github.com/google/uuid"
 	"github.com/notnil/chess"
-	"log"
 )
 
 type Chessplayer int8
@@ -56,10 +55,8 @@ func (g *game) Play() {
 		for {
 			for color := 0; color < 2; color++ {
 				if g.playing == false {
-					log.Print("game is stopped")
 					return
 				}
-				log.Println("game loop is running")
 
 				m := g.players[color].MakeMove(g.cgame)
 				move1(m, g.cgame, g.ui, g.chessplayers[color] != HUMAN)
@@ -76,12 +73,10 @@ func (g *game) Play() {
 
 func (g *game) Stop() {
 	if g.cgame.Outcome() == chess.NoOutcome {
-		log.Println("trying to Stop agents")
 		for color := 0; color < 2; color++ {
-			log.Println("trying to Stop agent")
 			g.players[color].Stop()
 		}
-		log.Println("stopping game")
+
 		g.playing = false
 	}
 
@@ -103,7 +98,6 @@ func (g *game) loadGameFromPreference(p fyne.Preferences) {
 
 	load, err := chess.FEN(cur)
 	if err != nil {
-		log.Println("Failed to load game", err)
 		return
 	}
 	load(g.cgame)
