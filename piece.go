@@ -16,15 +16,19 @@ var (
 
 type piece struct {
 	widget.Icon
-
+	g      *game
 	u      *ui
 	square chess.Square
 }
 
-func newPiece(u *ui, sq chess.Square) *piece {
-	p := u.game.Position().Board().Piece(sq)
+func newPiece(u *ui, sq chess.Square, g *game) *piece {
+	p := g.cgame.Position().Board().Piece(sq)
 
-	ret := &piece{u: u, square: sq}
+	ret := &piece{
+		g:      g,
+		u:      u,
+		square: sq,
+	}
 	ret.ExtendBaseWidget(ret)
 
 	ret.Resource = resourceForPiece(p)
@@ -69,13 +73,13 @@ func (p *piece) DragEnd() {
 	pos := p.u.over.Position().Add(fyne.NewPos(p.u.over.Size().Width/2, p.u.over.Size().Height/2))
 	sq := positionToSquare(pos, p.u.grid.Size())
 
-	if m := isValidMove(moveStart, sq, p.u.game); m != nil {
-		move(m, p.u.game, true, p.u)
-
-		go func() {
-			time.Sleep(time.Second)
-			playResponse(p.u)
-		}()
+	var color int
+	if p.g.cgame.Position().Turn() == chess.Black {
+		color = 1
+	}
+	m := isValidMove(moveStart, sq, p.g.cgame)
+	if m != nil {
+		p.g.players[color].GetChannel() <- m
 	} else {
 		off := squareToOffset(moveStart)
 		cell := p.u.grid.objects[off].(*fyne.Container)
@@ -88,9 +92,10 @@ func (p *piece) DragEnd() {
 		a.Start()
 		time.Sleep(time.Millisecond * 550)
 
-		p.u.refreshGrid()
+		p.u.refreshGrid(p.g.cgame)
 		p.u.over.Hide()
 	}
+
 	moveStart = chess.NoSquare
 }
 
@@ -103,7 +108,7 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	}
 
 	if moveStart == chess.NoSquare {
-		if m := isValidMove(p.square, chess.NoSquare, p.u.game); m != nil {
+		if m := isValidMove(p.square, chess.NoSquare, p.g.cgame); m != nil {
 			moveStart = p.square
 			p.u.start.FillColor = okBGColor
 			p.u.start.StrokeColor = okColor
@@ -128,15 +133,24 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	off := squareToOffset(moveStart)
 	cell := p.u.grid.objects[off].(*fyne.Container)
 
-	if m := isValidMove(moveStart, p.square, p.u.game); m != nil {
+	var color int
+	if p.g.cgame.Position().Turn() == chess.Black {
+		color = 1
+	}
+
+	if m := isValidMove(moveStart, p.square, p.g.cgame); m != nil {
 		moveStart = chess.NoSquare
 		p.u.over.Move(cell.Position())
-		move(m, p.u.game, true, p.u)
+		//move(m, g.cgame, true, p.u) TODO change this
+		p.g.players[color].GetChannel() <- m
 
-		go func() {
-			time.Sleep(time.Second / 2)
-			playResponse(p.u)
-		}()
+		/*
+			go func() {
+				time.Sleep(time.Second / 2)
+				//playResponse(p.u) TODO change this
+			}()
+		*/
+
 		return
 	}
 
