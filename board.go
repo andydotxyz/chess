@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"log"
 
 	"github.com/notnil/chess"
 )
@@ -19,16 +20,19 @@ type boardContainer struct {
 }
 
 func newBoardContainer(cells []fyne.CanvasObject, tap func()) *boardContainer {
+	log.Println("init board container")
 	c := &boardContainer{objects: cells, tapped: tap}
 	c.ExtendBaseWidget(c)
 	return c
 }
 
 func (b *boardContainer) CreateRenderer() fyne.WidgetRenderer {
+	log.Println("create renderer")
 	return &boardRenderer{b: b, objects: b.objects}
 }
 
 func (b *boardContainer) Tapped(_ *fyne.PointEvent) {
+	log.Println("tapped")
 	b.tapped()
 }
 
@@ -56,7 +60,7 @@ func (b *boardRenderer) Layout(s fyne.Size) {
 	}
 }
 
-func (b *boardRenderer) MinSize()fyne.Size {
+func (b *boardRenderer) MinSize() fyne.Size {
 	edge := theme.IconInlineSize() * 8
 	return fyne.NewSize(edge, edge)
 }
@@ -66,6 +70,7 @@ func (b *boardRenderer) Objects() []fyne.CanvasObject {
 }
 
 func (b *boardRenderer) Refresh() {
+	log.Println("refreshing")
 }
 
 func cellSize(s fyne.Size) float32 {

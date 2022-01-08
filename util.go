@@ -1,14 +1,16 @@
 package main
 
 import (
-	"log"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
+	"time"
 
 	"fyne.io/fyne/v2"
 
 	"github.com/notnil/chess"
 )
 
-const preferenceKeyCurrent = "current"
+const preferenceKeyCurrent = "current1"
 
 func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 	valid := g.ValidMoves()
@@ -21,24 +23,10 @@ func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 	return nil
 }
 
-func loadGameFromPreference(game *chess.Game, p fyne.Preferences) {
-	cur := p.String(preferenceKeyCurrent)
-	if cur == "" {
-		return
-	}
-
-	load, err := chess.FEN(cur)
-	if err != nil {
-		log.Println("Failed to load game", err)
-		return
-	}
-	load(game)
-}
-
 func positionToSquare(pos fyne.Position, gridSize fyne.Size) chess.Square {
 	var offX, offY = -1, -1
 	cellEdge := cellSize(gridSize)
-	for x := (gridSize.Width - cellEdge*8)/2; x <= pos.X; x += cellEdge {
+	for x := (gridSize.Width - cellEdge*8) / 2; x <= pos.X; x += cellEdge {
 		offX++
 	}
 	for y := float32(0); y <= pos.Y; y += cellEdge {
@@ -53,4 +41,64 @@ func squareToOffset(sq chess.Square) int {
 	y := 7 - ((sq - x) / 8)
 
 	return int(x + y*8)
+}
+
+func move1(m *chess.Move, game *chess.Game, u *ui, notHuman bool) {
+	if m == nil {
+		return
+	}
+
+	off := squareToOffset(m.S1())
+	cell := u.grid.objects[off].(*fyne.Container)
+	u.over.Move(cell.Position())
+
+	img := cell.Objects[2].(*piece)
+
+	u.over.Resource = resourceForPiece(game.Position().Board().Piece(m.S1()))
+	u.over.Resize(img.Size())
+	u.over.Refresh() // clear our old resource before showing
+
+	u.over.Show()
+	img.Resource = nil
+	img.Refresh()
+
+	off = squareToOffset(m.S2())
+	cell = u.grid.objects[off].(*fyne.Container)
+	pos2 := cell.Position()
+
+	if notHuman {
+		a := canvas.NewPositionAnimation(u.over.Position(), pos2, time.Millisecond*500, func(p fyne.Position) {
+			u.over.Move(p)
+			u.over.Refresh()
+		})
+		a.Start()
+		time.Sleep(500 * time.Millisecond)
+	}
+
+}
+
+func move2(m *chess.Move, game *chess.Game, u *ui) {
+	u.refreshGrid(game)
+	u.over.Hide()
+
+	white := game.Position().Turn() == chess.White
+	_ = u.blackTurn.Set(white)
+	_ = u.outcome.Set(string(game.Outcome()))
+
+	//	fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
+	// TODO this causes issues
+
+	if game.Outcome() != chess.NoOutcome {
+		result := "draw"
+		switch game.Outcome().String() {
+		case "1-0":
+			result = "won"
+		case "0-1":
+			result = "lost"
+		}
+
+		fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, "")
+		dialog.ShowInformation("Game ended",
+			"Game "+result+" because "+game.Method().String(), u.win)
+	}
 }
