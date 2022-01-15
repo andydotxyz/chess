@@ -17,7 +17,6 @@ func main() {
 	ui := newUI(win)
 	game := newGame()
 	game.initGame([2]Chessplayer{HUMAN, engine}, ui)
-	game.LoadFromPreferences(chessApp)
 	win.SetContent(game.ui.makeUI(game))
 	win.Resize(fyne.NewSize(480, 480+theme.IconInlineSize()*2+theme.Padding()))
 	win.SetMainMenu(fyne.NewMainMenu(
@@ -27,11 +26,14 @@ func main() {
 					game.Stop()
 					game.initGame([2]Chessplayer{playerWhite, playerBlack}, ui)
 					game.ui.refreshGrid(game.cgame)
-					chessApp.Preferences().SetString(preferenceKeyCurrent, game.cgame.FEN())
+					chessApp.Preferences().SetString(PREFERENCE_KEY_CURRENT, game.marshall())
 					game.Play()
 				})
 			})),
 	))
+
+	cur := fyne.CurrentApp().Preferences().String(PREFERENCE_KEY_CURRENT)
+	game.loadGame(cur, ui)
 	game.Play()
 	win.ShowAndRun()
 }
