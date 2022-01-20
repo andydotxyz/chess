@@ -85,8 +85,6 @@ func move2(m *chess.Move, game *chess.Game, u *ui) {
 	_ = u.blackTurn.Set(white)
 	_ = u.outcome.Set(string(game.Outcome()))
 
-	//fyne.CurrentApp().Preferences().SetString(PREFERENCE_KEY_CURRENT, game.FEN())
-
 	if game.Outcome() != chess.NoOutcome {
 		result := "draw"
 		switch game.Outcome().String() {
@@ -96,7 +94,6 @@ func move2(m *chess.Move, game *chess.Game, u *ui) {
 			result = "lost"
 		}
 
-		//fyne.CurrentApp().Preferences().SetString(PREFERENCE_KEY_CURRENT, "")
 		dialog.ShowInformation("Game ended",
 			"Game "+result+" because "+game.Method().String(), u.win)
 	}

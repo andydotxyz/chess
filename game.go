@@ -9,31 +9,31 @@ import (
 	"github.com/notnil/chess"
 )
 
-type Chessplayer int8
+type playerType int8
 
 type game struct {
-	gameId       uuid.UUID
-	cgame        *chess.Game
-	chessplayers [2]Chessplayer //TODO re-think names of attributes
-	players      [2]AgentPlayer
-	ui           *ui
-	playing      bool
+	gameId      uuid.UUID
+	cgame       *chess.Game
+	playerTypes [2]playerType
+	agents      [2]AgentPlayer
+	ui          *ui
+	playing     bool
 }
 
 type gameSerial struct {
-	PlayerWhite Chessplayer
-	PlayerBlack Chessplayer
+	PlayerWhite playerType
+	PlayerBlack playerType
 	FEN         string
-	Uuid        uuid.UUID
+	Id          uuid.UUID
 }
 
-func newGame() *game {
+func NewGame() *game {
 	return &game{
 		playing: false,
 	}
 }
 
-func (g *game) initGame(agents [2]Chessplayer, ui *ui) {
+func (g *game) InitGame(agents [2]playerType, ui *ui) {
 	var players [2]AgentPlayer
 
 	for color := 0; color < 2; color++ {
@@ -49,20 +49,22 @@ func (g *game) initGame(agents [2]Chessplayer, ui *ui) {
 
 	g.gameId = uuid.New()
 	g.cgame = chess.NewGame()
-	g.chessplayers = agents
-	g.players = players
+	g.playerTypes = agents
+	g.agents = players
 	g.ui = ui
 	g.playing = true
 
 	_ = g.ui.blackTurn.Set(false)
 	_ = g.ui.outcome.Set(string(chess.NoOutcome))
+
+	//g.ui.refreshGrid(g.cgame)
 }
 
 func (g *game) loadGame(s string, ui *ui) {
 	bytes := []byte(s)
 	var gSerial gameSerial
 	json.Unmarshal(bytes, &gSerial)
-	agents := [2]Chessplayer{gSerial.PlayerWhite, gSerial.PlayerBlack}
+	agents := [2]playerType{gSerial.PlayerWhite, gSerial.PlayerBlack}
 	var players [2]AgentPlayer
 
 	for color := 0; color < 2; color++ {
@@ -75,36 +77,36 @@ func (g *game) loadGame(s string, ui *ui) {
 			players[color] = NewAgentUCI(100)
 		}
 	}
-	g.gameId = gSerial.Uuid
+	g.gameId = gSerial.Id
 	load, err := chess.FEN(gSerial.FEN)
 	if err != nil {
 		return
 	}
 	load(g.cgame)
 
-	g.chessplayers = agents
-	g.players = players
+	g.playerTypes = agents
+	g.agents = players
 	g.ui = ui
 	g.playing = true
 
 	_ = g.ui.blackTurn.Set(g.cgame.Position().Turn() == chess.White)
 	_ = g.ui.outcome.Set(string(g.cgame.Outcome()))
 
-	g.ui.refreshGrid(g.cgame)
+	//g.ui.refreshGrid(g.cgame)
 }
 
 func (g *game) marshall() string {
 	gameSerial := &gameSerial{
-		PlayerWhite: g.chessplayers[0],
-		PlayerBlack: g.chessplayers[0],
-		Uuid:        g.gameId,
+		PlayerWhite: g.playerTypes[0],
+		PlayerBlack: g.playerTypes[0],
+		Id:          g.gameId,
 		FEN:         g.cgame.FEN(),
 	}
 	b, _ := json.Marshal(gameSerial)
 	return string(b)
 }
 
-func (g *game) Play() { // TODO think which methods need to be exported
+func (g *game) Play() {
 	go func() {
 		for {
 			for color := 0; color < 2; color++ {
@@ -116,9 +118,12 @@ func (g *game) Play() { // TODO think which methods need to be exported
 					continue
 				}
 
-				m := g.players[color].MakeMove(g.cgame)
-				move1(m, g.cgame, g.ui, g.chessplayers[color] != HUMAN)
-				g.cgame.Move(m) // TODO handle the error
+				m := g.agents[color].MakeMove(g.cgame)
+				move1(m, g.cgame, g.ui, g.playerTypes[color] != HUMAN)
+				err := g.cgame.Move(m)
+				if err != nil {
+					return
+				}
 				move2(m, g.cgame, g.ui)
 				if g.cgame.Outcome() != chess.NoOutcome {
 					return
@@ -126,18 +131,16 @@ func (g *game) Play() { // TODO think which methods need to be exported
 				fyne.CurrentApp().Preferences().SetString(PREFERENCE_KEY_CURRENT, g.marshall())
 				//TODO this should belong to the ui
 			}
-			//time.Sleep(200 * time.Millisecond)
 		}
 	}()
 }
 
 func (g *game) Stop() {
+	g.playing = false
 	if g.cgame.Outcome() == chess.NoOutcome {
 		for color := 0; color < 2; color++ {
-			g.players[color].Stop()
+			g.agents[color].Stop()
 		}
-
-		g.playing = false
 	}
 
 }

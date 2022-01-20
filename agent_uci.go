@@ -12,6 +12,7 @@ import (
 
 type AgentUCI struct {
 	Agent
+	playing     bool
 	engine      *uci.Engine
 	timePerMove time.Duration // millisecondes
 }
@@ -25,9 +26,12 @@ func NewAgentUCI(timePerMove time.Duration) *AgentUCI {
 	if err := engine.Run(uci.CmdUCI, uci.CmdIsReady, uci.CmdUCINewGame); err != nil {
 		panic(err)
 	}
-	ret := &AgentUCI{}
-	ret.engine = engine
-	ret.timePerMove = timePerMove
+	ret := &AgentUCI{
+		playing:     true,
+		engine:      engine,
+		timePerMove: timePerMove,
+	}
+
 	return ret
 }
 
@@ -38,6 +42,10 @@ func (a *AgentUCI) MakeMove(chessGame *chess.Game) *chess.Move {
 		panic(err)
 	}
 
+	if a.playing == false {
+		return nil
+	}
+
 	return a.engine.SearchResults().BestMove
 }
 
@@ -46,6 +54,7 @@ func (a *AgentUCI) GetChannel() chan *chess.Move {
 }
 
 func (a *AgentUCI) Stop() {
+	a.playing = false
 	return
 }
 

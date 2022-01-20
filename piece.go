@@ -79,7 +79,7 @@ func (p *piece) DragEnd() {
 	}
 	m := isValidMove(moveStart, sq, p.g.cgame)
 	if m != nil {
-		p.g.players[color].GetChannel() <- m
+		p.g.agents[color].GetChannel() <- m
 	} else {
 		off := squareToOffset(moveStart)
 		cell := p.u.grid.objects[off].(*fyne.Container)
@@ -92,7 +92,6 @@ func (p *piece) DragEnd() {
 		a.Start()
 		time.Sleep(time.Millisecond * 550)
 
-		p.u.refreshGrid(p.g.cgame)
 		p.u.over.Hide()
 	}
 
@@ -141,16 +140,7 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	if m := isValidMove(moveStart, p.square, p.g.cgame); m != nil {
 		moveStart = chess.NoSquare
 		p.u.over.Move(cell.Position())
-		//move(m, g.cgame, true, p.u) TODO change this
-		p.g.players[color].GetChannel() <- m
-
-		/*
-			go func() {
-				time.Sleep(time.Second / 2)
-				//playResponse(p.u) TODO change this
-			}()
-		*/
-
+		p.g.agents[color].GetChannel() <- m
 		return
 	}
 

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	HUMAN Chessplayer = iota
+	HUMAN playerType = iota
 	RANDOM
 	UCI
 )
