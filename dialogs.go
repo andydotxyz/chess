@@ -8,9 +8,9 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack Chessplayer)) {
-	var playerWhite Chessplayer = HUMAN
-	var playerBlack Chessplayer = engine
+func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack playerType)) {
+	var playerWhite playerType = HUMAN
+	var playerBlack playerType = engine
 
 	chooseWhite := &widget.RadioGroup{
 		Options: []string{"Engine", "Human"},

@@ -10,7 +10,7 @@ import (
 	"github.com/notnil/chess"
 )
 
-const preferenceKeyCurrent = "current1"
+const PREFERENCE_KEY_CURRENT = "current"
 
 func isValidMove(s1, s2 chess.Square, g *chess.Game) *chess.Move {
 	valid := g.ValidMoves()
@@ -85,9 +85,6 @@ func move2(m *chess.Move, game *chess.Game, u *ui) {
 	_ = u.blackTurn.Set(white)
 	_ = u.outcome.Set(string(game.Outcome()))
 
-	//	fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
-	// TODO this causes issues
-
 	if game.Outcome() != chess.NoOutcome {
 		result := "draw"
 		switch game.Outcome().String() {
@@ -97,7 +94,6 @@ func move2(m *chess.Move, game *chess.Game, u *ui) {
 			result = "lost"
 		}
 
-		fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, "")
 		dialog.ShowInformation("Game ended",
 			"Game "+result+" because "+game.Method().String(), u.win)
 	}

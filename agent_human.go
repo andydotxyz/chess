@@ -9,17 +9,15 @@ import (
 
 type AgentHuman struct {
 	Agent
-	msg       chan *chess.Move
-	terminate chan bool
-	white     bool
-	playing   bool
+	msg     chan *chess.Move
+	white   bool
+	playing bool
 }
 
 func NewAgentHuman(white bool) *AgentHuman {
 	return &AgentHuman{
-		msg:       make(chan *chess.Move),
-		terminate: make(chan bool),
-		playing:   true,
+		msg:     make(chan *chess.Move),
+		playing: true,
 	}
 }
 
