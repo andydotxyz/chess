@@ -92,7 +92,7 @@ func (p *piece) DragEnd() {
 		a.Start()
 		time.Sleep(time.Millisecond * 550)
 
-		p.u.over.Hide()
+		//p.u.over.Hide()
 	}
 
 	moveStart = chess.NoSquare
