@@ -25,8 +25,8 @@ func main() {
 				dialogNewGame(&win, func(playerWhite, playerBlack playerType) {
 					game.Stop()
 					game.InitGame([2]playerType{playerWhite, playerBlack}, ui)
-					game.ui.refreshGrid(game.cgame)
 					chessApp.Preferences().SetString(PREFERENCE_KEY_CURRENT, game.marshall())
+					game.ui.refreshGrid(game.cgame)
 					game.Play()
 				})
 			})),
