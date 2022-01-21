@@ -56,7 +56,7 @@ func (b *boardRenderer) Layout(s fyne.Size) {
 	}
 }
 
-func (b *boardRenderer) MinSize()fyne.Size {
+func (b *boardRenderer) MinSize() fyne.Size {
 	edge := theme.IconInlineSize() * 8
 	return fyne.NewSize(edge, edge)
 }

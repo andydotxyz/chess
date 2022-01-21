@@ -30,12 +30,11 @@ type ui struct {
 	blackTurn binding.Bool
 	outcome   binding.String
 
-	game *chess.Game
-	eng  *uci.Engine
+	eng *uci.Engine
 }
 
-func newUI(win fyne.Window, game *chess.Game) *ui {
-	u := &ui{win: win, game: game}
+func newUI(win fyne.Window) *ui {
+	u := &ui{win: win}
 	u.blackTurn = binding.NewBool()
 	u.outcome = binding.NewString()
 	u.outcome.Set(string(chess.NoOutcome))
@@ -43,7 +42,7 @@ func newUI(win fyne.Window, game *chess.Game) *ui {
 	return u
 }
 
-func (u *ui) createGrid() *boardContainer {
+func (u *ui) createGrid(g *game) *boardContainer {
 	var cells []fyne.CanvasObject
 
 	for y := 7; y >= 0; y-- {
@@ -56,7 +55,7 @@ func (u *ui) createGrid() *boardContainer {
 				effect.Resource = resourceOverlay2Png
 			}
 
-			p := newPiece(u, chess.Square(x+y*8))
+			p := newPiece(u, chess.Square(x+y*8), g)
 			cells = append(cells, container.NewMax(bg, effect, p))
 		}
 	}
@@ -113,8 +112,8 @@ func (u *ui) makeHeader() fyne.CanvasObject {
 		layout.NewSpacer())
 }
 
-func (u *ui) makeUI() fyne.CanvasObject {
-	u.grid = u.createGrid()
+func (u *ui) makeUI(g *game) fyne.CanvasObject {
+	u.grid = u.createGrid(g)
 
 	u.over = canvas.NewImageFromResource(nil)
 	u.over.FillMode = canvas.ImageFillContain
@@ -127,10 +126,10 @@ func (u *ui) makeUI() fyne.CanvasObject {
 	return container.NewBorder(u.makeHeader(), nil, nil, nil, board)
 }
 
-func (u *ui) refreshGrid() {
+func (u *ui) refreshGrid(g *chess.Game) {
 	y, x := 7, 0
 	for _, cell := range u.grid.objects {
-		p := u.game.Position().Board().Piece(chess.Square(x + y*8))
+		p := g.Position().Board().Piece(chess.Square(x + y*8))
 
 		img := cell.(*fyne.Container).Objects[2].(*piece)
 		img.Resource = resourceForPiece(p)
