@@ -56,8 +56,6 @@ func (g *game) InitGame(agents [2]playerType, ui *ui) {
 
 	_ = g.ui.blackTurn.Set(false)
 	_ = g.ui.outcome.Set(string(chess.NoOutcome))
-
-	//g.ui.refreshGrid(g.cgame)
 }
 
 func (g *game) loadGame(s string, ui *ui) {
@@ -91,8 +89,6 @@ func (g *game) loadGame(s string, ui *ui) {
 
 	_ = g.ui.blackTurn.Set(g.cgame.Position().Turn() == chess.White)
 	_ = g.ui.outcome.Set(string(g.cgame.Outcome()))
-
-	//g.ui.refreshGrid(g.cgame)
 }
 
 func (g *game) marshall() string {
@@ -119,12 +115,15 @@ func (g *game) Play() {
 				}
 
 				m := g.agents[color].MakeMove(g.cgame)
+
 				move1(m, g.cgame, g.ui, g.playerTypes[color] != HUMAN)
 				err := g.cgame.Move(m)
 				if err != nil {
 					return
 				}
+
 				move2(m, g.cgame, g.ui)
+
 				if g.cgame.Outcome() != chess.NoOutcome {
 					return
 				}

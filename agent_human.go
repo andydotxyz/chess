@@ -4,7 +4,6 @@ package main
 
 import (
 	"github.com/notnil/chess"
-	"time"
 )
 
 type AgentHuman struct {
@@ -25,7 +24,7 @@ func (a *AgentHuman) MakeMove(chessGame *chess.Game) *chess.Move {
 	for {
 		select {
 		case m := <-a.msg:
-			time.Sleep(500 * time.Millisecond)
+			//time.Sleep(500 * time.Millisecond)
 			return m //TODO we might consider a check for valid moves here
 		default:
 			if a.playing == false {

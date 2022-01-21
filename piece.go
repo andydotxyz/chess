@@ -39,7 +39,6 @@ func (p *piece) Dragged(ev *fyne.DragEvent) {
 	if moveStart != chess.NoSquare && p.square != moveStart {
 		return // ignore drags if we are tapping
 	}
-
 	moveStart = p.square
 	off := squareToOffset(p.square)
 	cell := p.u.grid.objects[off].(*fyne.Container)
@@ -48,6 +47,7 @@ func (p *piece) Dragged(ev *fyne.DragEvent) {
 	pos := cell.Position().Add(ev.Position)
 	p.u.over.Move(pos.Subtract(fyne.NewPos(img.Size().Width/2, img.Size().Height/2)))
 	p.u.over.Resize(img.Size())
+	time.Sleep(1000)
 
 	if img.Resource != nil {
 		p.u.over.Resource = img.Resource
@@ -123,6 +123,7 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 		p.u.start.Resize(cell.Size())
 		p.u.start.Refresh()
 		p.u.start.Show()
+		//TODO Fix issue around here
 		return
 	}
 

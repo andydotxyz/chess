@@ -74,13 +74,11 @@ func move1(m *chess.Move, game *chess.Game, u *ui, notHuman bool) {
 		a.Start()
 		time.Sleep(500 * time.Millisecond)
 	}
+	u.over.Hide()
 
 }
 
 func move2(m *chess.Move, game *chess.Game, u *ui) {
-	u.refreshGrid(game)
-	u.over.Hide()
-
 	white := game.Position().Turn() == chess.White
 	_ = u.blackTurn.Set(white)
 	_ = u.outcome.Set(string(game.Outcome()))
@@ -97,4 +95,5 @@ func move2(m *chess.Move, game *chess.Game, u *ui) {
 		dialog.ShowInformation("Game ended",
 			"Game "+result+" because "+game.Method().String(), u.win)
 	}
+	u.refreshGrid(game)
 }
