@@ -87,7 +87,7 @@ func (g *game) loadGame(s string, ui *ui) {
 	g.ui = ui
 	g.playing = true
 
-	_ = g.ui.blackTurn.Set(g.cgame.Position().Turn() == chess.White)
+	_ = g.ui.blackTurn.Set(g.cgame.Position().Turn() != chess.White)
 	_ = g.ui.outcome.Set(string(g.cgame.Outcome()))
 }
 
