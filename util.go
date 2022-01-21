@@ -79,8 +79,7 @@ func move1(m *chess.Move, game *chess.Game, u *ui, notHuman bool) {
 }
 
 func move2(m *chess.Move, game *chess.Game, u *ui) {
-	white := game.Position().Turn() == chess.White
-	_ = u.blackTurn.Set(white)
+	_ = u.blackTurn.Set(game.Position().Turn() != chess.White)
 	_ = u.outcome.Set(string(game.Outcome()))
 
 	if game.Outcome() != chess.NoOutcome {
