@@ -62,8 +62,7 @@ func move(m *chess.Move, game *chess.Game, white bool, u *ui) {
 	u.over.Refresh() // clear our old resource before showing
 
 	u.over.Show()
-	img.Resource = nil
-	img.Refresh()
+	img.SetResource(nil)
 
 	off = squareToOffset(m.S2())
 	cell = u.grid.objects[off].(*fyne.Container)
@@ -71,7 +70,6 @@ func move(m *chess.Move, game *chess.Game, white bool, u *ui) {
 
 	a := canvas.NewPositionAnimation(u.over.Position(), pos2, time.Millisecond*500, func(p fyne.Position) {
 		u.over.Move(p)
-		u.over.Refresh()
 	})
 	a.Start()
 	time.Sleep(time.Millisecond * 550)
