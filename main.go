@@ -15,8 +15,10 @@ import (
 )
 
 func main() {
-	a := app.NewWithID("xyz.andy.chess")
-	win := a.NewWindow("Chess")
+	a := app.NewWithID("dero.dev.chess")
+	win := a.NewWindow("DERO Dev Chess")
+	win.Resize(fyne.NewSize(480, 480+theme.IconInlineSize()*2+theme.Padding()))
+	win.CenterOnScreen()
 
 	game := chess.NewGame()
 	u := newUI(win, game)
@@ -24,8 +26,8 @@ func main() {
 	if u.eng != nil {
 		defer u.eng.Close()
 	} else {
-		log.Println("Cound not find stockfish executable, using random player")
-		rand.Seed(time.Now().Unix()) // random seed for random responses
+		log.Println("Could not find stockfish executable, using random player")
+		rand.New(rand.NewSource(time.Now().UnixNano())) // random seed for random responses
 	}
 
 	loadGameFromPreference(game, a.Preferences())
@@ -34,8 +36,11 @@ func main() {
 		u.refreshGrid()
 	})
 
-	win.SetContent(u.makeUI())
-	win.Resize(fyne.NewSize(480, 480+theme.IconInlineSize()*2+theme.Padding()))
+	// Wait for ShowAndRun before calling SetContent
+	go func() {
+		time.Sleep(time.Second / 5)
+		win.SetContent(u.makeUI())
+	}()
 
 	win.SetMainMenu(fyne.NewMainMenu(
 		fyne.NewMenu("File",

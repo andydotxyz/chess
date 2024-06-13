@@ -57,7 +57,7 @@ func (u *ui) createGrid() *boardContainer {
 			}
 
 			p := newPiece(u, chess.Square(x+y*8))
-			cells = append(cells, container.NewMax(bg, effect, p))
+			cells = append(cells, container.NewStack(bg, effect, p))
 		}
 	}
 
@@ -106,7 +106,7 @@ func (u *ui) makeHeader() fyne.CanvasObject {
 		container.NewGridWithColumns(5,
 			widget.NewIcon(resourceForPiece(chess.WhiteKing)),
 			whitePlays,
-			container.NewMax(statusBG, status),
+			container.NewStack(statusBG, status),
 			blackPlays,
 			widget.NewIcon(resourceForPiece(chess.BlackKing)),
 		),
@@ -123,7 +123,7 @@ func (u *ui) makeUI() fyne.CanvasObject {
 	u.start = canvas.NewRectangle(color.Transparent)
 	u.start.StrokeWidth = 4
 
-	board := container.NewMax(u.grid, container.NewWithoutLayout(u.start, u.over))
+	board := container.NewStack(u.grid, container.NewWithoutLayout(u.start, u.over))
 	return container.NewBorder(u.makeHeader(), nil, nil, nil, board)
 }
 
