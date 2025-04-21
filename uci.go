@@ -5,9 +5,10 @@ import (
 	"os/exec"
 	"time"
 
-	"fyne.io/fyne/v2"
 	"github.com/notnil/chess"
 	"github.com/notnil/chess/uci"
+
+	"fyne.io/fyne/v2"
 )
 
 func loadOpponent() *uci.Engine {
@@ -47,7 +48,7 @@ func playResponse(u *ui) {
 	cell := u.grid.objects[off].(*fyne.Container)
 
 	u.over.Move(cell.Position())
-	move(m, u.game, false, u)
+	move(m, u.game, false, u, nil)
 }
 
 func randomResponse(game *chess.Game) *chess.Move {

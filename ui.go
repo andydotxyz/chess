@@ -3,6 +3,9 @@ package main
 import (
 	"image/color"
 
+	"github.com/notnil/chess"
+	"github.com/notnil/chess/uci"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -10,8 +13,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/notnil/chess"
-	"github.com/notnil/chess/uci"
 )
 
 var (
@@ -54,6 +55,7 @@ func (u *ui) createGrid() *boardContainer {
 			if x%2 == y%2 {
 				bg.FillColor = color.RGBA{0x73, 0x50, 0x32, 0xFF}
 				effect.Resource = resourceOverlay2Png
+				effect.Image = nil
 			}
 
 			p := newPiece(u, chess.Square(x+y*8))
@@ -75,28 +77,23 @@ func (u *ui) makeHeader() fyne.CanvasObject {
 
 	u.blackTurn.AddListener(binding.NewDataListener(func() {
 		if black, _ := u.blackTurn.Get(); black {
-			whitePlays.Resource = nil
-			blackPlays.Resource = theme.NavigateNextIcon()
+			whitePlays.SetResource(nil)
+			blackPlays.SetResource(theme.NavigateNextIcon())
 		} else {
-			whitePlays.Resource = theme.NavigateBackIcon()
-			blackPlays.Resource = nil
+			whitePlays.SetResource(theme.NavigateBackIcon())
+			blackPlays.SetResource(nil)
 		}
-		whitePlays.Refresh()
-		blackPlays.Refresh()
 	}))
 	u.outcome.AddListener(binding.NewDataListener(func() {
 		outcome, _ := u.outcome.Get()
 		switch outcome {
 		case string(chess.NoOutcome):
-			status.Resource = nil
+			status.SetResource(nil)
 		default:
-			status.Resource = theme.WarningIcon()
-			blackPlays.Resource = nil
-			whitePlays.Resource = nil
-			blackPlays.Refresh()
-			whitePlays.Refresh()
+			status.SetResource(theme.WarningIcon())
+			blackPlays.SetResource(nil)
+			whitePlays.SetResource(nil)
 		}
-		status.Refresh()
 	}))
 
 	statusBG := canvas.NewRectangle(theme.BackgroundColor())

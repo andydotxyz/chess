@@ -52,11 +52,12 @@ func main() {
 	win.ShowAndRun()
 }
 
-func move(m *chess.Move, game *chess.Game, white bool, u *ui) {
+func move(m *chess.Move, game *chess.Game, white bool, u *ui, cb func()) {
 	off := squareToOffset(m.S1())
 	cell := u.grid.objects[off].(*fyne.Container)
 	img := cell.Objects[2].(*piece)
 
+	u.over.Image = nil
 	u.over.Resource = resourceForPiece(game.Position().Board().Piece(m.S1()))
 	u.over.Resize(img.Size())
 	u.over.Refresh() // clear our old resource before showing
@@ -72,27 +73,36 @@ func move(m *chess.Move, game *chess.Game, white bool, u *ui) {
 		u.over.Move(p)
 	})
 	a.Start()
-	time.Sleep(time.Millisecond * 550)
 
-	game.Move(m)
-	u.refreshGrid()
-	u.over.Hide()
+	go func() {
+		time.Sleep(time.Millisecond * 550)
 
-	_ = u.blackTurn.Set(white)
-	fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
+		fyne.DoAndWait(func() {
+			game.Move(m)
+			u.refreshGrid()
+			u.over.Hide()
 
-	_ = u.outcome.Set(string(game.Outcome()))
-	if game.Outcome() != chess.NoOutcome {
-		result := "draw"
-		switch game.Outcome().String() {
-		case "1-0":
-			result = "won"
-		case "0-1":
-			result = "lost"
-		}
+			_ = u.blackTurn.Set(white)
+			fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, game.FEN())
 
-		fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, "")
-		dialog.ShowInformation("Game ended",
-			"Game "+result+" because "+game.Method().String(), u.win)
-	}
+			_ = u.outcome.Set(string(game.Outcome()))
+			if game.Outcome() != chess.NoOutcome {
+				result := "draw"
+				switch game.Outcome().String() {
+				case "1-0":
+					result = "won"
+				case "0-1":
+					result = "lost"
+				}
+
+				fyne.CurrentApp().Preferences().SetString(preferenceKeyCurrent, "")
+				dialog.ShowInformation("Game ended",
+					"Game "+result+" because "+game.Method().String(), u.win)
+			}
+
+			if cb != nil {
+				cb()
+			}
+		})
+	}()
 }

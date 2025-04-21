@@ -49,8 +49,7 @@ func (p *piece) Dragged(ev *fyne.DragEvent) {
 		p.u.over.Resource = img.Resource
 		p.u.over.Show()
 
-		img.Resource = nil
-		img.Refresh()
+		img.SetResource(nil)
 	}
 
 	p.u.over.Refresh()
@@ -70,12 +69,13 @@ func (p *piece) DragEnd() {
 	sq := positionToSquare(pos, p.u.grid.Size())
 
 	if m := isValidMove(moveStart, sq, p.u.game); m != nil {
-		move(m, p.u.game, true, p.u)
-
-		go func() {
-			time.Sleep(time.Second)
-			playResponse(p.u)
-		}()
+		move(m, p.u.game, true, p.u,
+			func() {
+				time.Sleep(time.Second)
+				fyne.Do(func() {
+					playResponse(p.u)
+				})
+			})
 	} else {
 		off := squareToOffset(moveStart)
 		cell := p.u.grid.objects[off].(*fyne.Container)
@@ -131,12 +131,13 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 	if m := isValidMove(moveStart, p.square, p.u.game); m != nil {
 		moveStart = chess.NoSquare
 		p.u.over.Move(cell.Position())
-		move(m, p.u.game, true, p.u)
-
-		go func() {
-			time.Sleep(time.Second / 2)
-			playResponse(p.u)
-		}()
+		move(m, p.u.game, true, p.u,
+			func() {
+				time.Sleep(time.Second / 2)
+				fyne.Do(func() {
+					playResponse(p.u)
+				})
+			})
 		return
 	}
 
@@ -151,7 +152,9 @@ func (p *piece) Tapped(ev *fyne.PointEvent) {
 
 	go func() {
 		time.Sleep(time.Millisecond * 500)
-		p.u.start.Hide()
-		p.u.start.Refresh()
+		fyne.Do(func() {
+			p.u.start.Hide()
+			p.u.start.Refresh()
+		})
 	}()
 }
