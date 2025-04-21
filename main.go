@@ -45,7 +45,7 @@ func main() {
 
 				_ = u.blackTurn.Set(false)
 				_ = u.outcome.Set(string(chess.NoOutcome))
-				a.Preferences().SetString(preferenceKeyCurrent, game.FEN())
+				a.Preferences().SetString(preferenceKeyCurrent, u.game.FEN())
 			})),
 	))
 
